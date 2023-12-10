@@ -1,8 +1,11 @@
 {
-  "name": "my-module",
+  "name": "nuxt-workspace",
   "version": "1.0.0",
-  "description": "My new Nuxt module",
-  "repository": "your-org/my-module",
+  "description": "A Nuxt module integrating workspace paths into Nuxt config",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/serkodev/nuxt-workspace.git"
+  },
   "license": "MIT",
   "type": "module",
   "exports": {
@@ -41,5 +44,10 @@
     "eslint": "^8.55.0",
     "nuxt": "^3.8.2",
     "vitest": "^0.33.0"
+  },
+  "unbuild": {
+    "externals": [
+      "pkg-types"
+    ]
   }
 }
