@@ -1,6 +1,6 @@
 {
   "name": "nuxt-workspace",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "description": "A Nuxt module integrating workspace paths into Nuxt config of monorepo",
   "repository": {
     "type": "git",
