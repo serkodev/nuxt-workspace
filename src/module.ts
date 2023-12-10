@@ -35,19 +35,17 @@ export default defineNuxtModule<ModuleOptions>({
       nuxt.options.workspaceDir = workspaceDir
     }
 
-    const isObjectPathIgnore = (objPath: string | null) => objPath !== null && ignoreObjectPaths.some(path => {
-      if (path === objPath)
-        return true
+    // extract config from _layers
+    const layersConfigRegex = /^_layers\[\d+\]\.config\.(.*)/
+    const extractConfig = (objPath: string) => {
+      const matches = objPath.match(layersConfigRegex)
+      if (matches)
+        return matches[1]
+      return objPath
+    }
 
-      // ignore from _layers config
-      if (objPath.startsWith('_layers[')) {
-        const layerIndex = objPath.indexOf('].config.')
-        if (layerIndex !== -1) {
-          const layerPath = objPath.slice(0, layerIndex + 1)
-          return objPath === layerPath || objPath.startsWith(layerPath + '.')
-        }
-      }
-    })
+    const isObjectPathIgnore = (objPath: string | null) =>
+      objPath !== null && ignoreObjectPaths.some(path => extractConfig(objPath) === path)
 
     const replacePathsFromObject = (val: any, objPath: string | null = null): any => {
       if (!val || isObjectPathIgnore(objPath))
