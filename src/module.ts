@@ -1,19 +1,73 @@
-import { defineNuxtModule, addPlugin, createResolver } from '@nuxt/kit'
+import { defineNuxtModule } from '@nuxt/kit'
+import { findWorkspaceDir } from 'pkg-types'
 
-// Module options TypeScript interface definition
-export interface ModuleOptions {}
+export interface ModuleOptions {
+  placeholder?: string
+  ignoreObjectPaths?: string[]
+}
 
 export default defineNuxtModule<ModuleOptions>({
   meta: {
-    name: 'my-module',
-    configKey: 'myModule'
+    name: 'nuxt-workspace',
+    configKey: 'workspace'
   },
-  // Default configuration options of the Nuxt module
-  defaults: {},
-  setup (options, nuxt) {
-    const resolver = createResolver(import.meta.url)
+  defaults: {
+    placeholder: '#workspace',
+    ignoreObjectPaths: []
+  },
+  async setup(resolvedOptions, nuxt) {
+    const placeholder = resolvedOptions.placeholder
+    const ignoreObjectPaths = [
+      ...(resolvedOptions.ignoreObjectPaths ?? []),
+      'workspace'
+    ]
 
-    // Do not add the extension since the `.ts` will be transpiled to `.mjs` after `npm run prepack`
-    addPlugin(resolver.resolve('./runtime/plugin'))
+    if (!placeholder)
+      return
+
+    let workspaceDir = nuxt.options.workspaceDir
+
+    // special case: allow to use placeholder in workspaceDir option
+    const placeholderIndex = workspaceDir.indexOf(placeholder)
+    if (placeholderIndex !== -1) {
+      const remainsDir = workspaceDir.slice(placeholderIndex + placeholder.length)
+      workspaceDir = await findWorkspaceDir(nuxt.options.rootDir) + remainsDir
+      nuxt.options.workspaceDir = workspaceDir
+    }
+
+    const isObjectPathIgnore = (objPath: string | null) => objPath !== null && ignoreObjectPaths.some(path => {
+      if (path === objPath)
+        return true
+
+      // ignore from _layers config
+      if (objPath.startsWith('_layers[')) {
+        const layerIndex = objPath.indexOf('].config.')
+        if (layerIndex !== -1) {
+          const layerPath = objPath.slice(0, layerIndex + 1)
+          return objPath === layerPath || objPath.startsWith(layerPath + '.')
+        }
+      }
+    })
+
+    const replacePathsFromObject = (val: any, objPath: string | null = null): any => {
+      if (!val || isObjectPathIgnore(objPath))
+        return val
+
+      if (typeof val === 'string')
+        return val.replace(placeholder, workspaceDir)
+
+      if (Array.isArray(val))
+        return val.map((v, i) => replacePathsFromObject(v, `${objPath}[${i}]`))
+
+      if (typeof val === 'object') {
+        Object.keys(val).forEach((key) => {
+          val[key] = replacePathsFromObject(val[key], objPath === null ? key : `${objPath}.${key}`)
+        })
+      }
+
+      return val
+    }
+
+    nuxt.options = replacePathsFromObject(nuxt.options)
   }
 })
