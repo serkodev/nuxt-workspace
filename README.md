@@ -18,7 +18,7 @@ A Nuxt module integrating workspace paths into Nuxt config of monorepo
 
 ## Why
 
-Nuxt originally provides a [`typescript.includeWorkspace`]("https://nuxt.com/docs/api/nuxt-config#includeworkspace") config, but it only includes all workspace files. This can cause interference between different packages in a monorepo, preventing the completion of [`typecheck`]("https://nuxt.com/docs/api/commands/typecheck").
+Nuxt originally provides a [`typescript.includeWorkspace`](https://nuxt.com/docs/api/nuxt-config#includeworkspace) config, but it only includes all workspace files. This can cause interference between different packages in a monorepo, preventing the completion of [`typecheck`](https://nuxt.com/docs/api/commands/typecheck).
 
 After using this `nuxt-workspace` module, you can use `#workspace/*.d.ts` in the `typescript.tsConfig.include` configuration to customize the workspace pattern you want to include and also you can also use it in all other Nuxt configuration areas.
 
@@ -135,26 +135,26 @@ export default defineNuxtConfig({
 
 ```bash
 # Install dependencies
-npm install
+pnpm install
 
 # Generate type stubs
-npm run dev:prepare
+pnpm run dev:prepare
 
 # Develop with the playground
-npm run dev
+pnpm run dev
 
 # Build the playground
-npm run dev:build
+pnpm run dev:build
 
 # Run ESLint
-npm run lint
+pnpm run lint
 
 # Run Vitest
-npm run test
-npm run test:watch
+pnpm run test
+pnpm run test:watch
 
 # Release new version
-npm run release
+pnpm run release
 ```
 
 <!-- Badges -->
