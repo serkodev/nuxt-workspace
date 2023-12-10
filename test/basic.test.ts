@@ -22,6 +22,7 @@ describe('basic', async () => {
   it('ignore replace workspace path', () => {
     const options = useTestContext().nuxt?.options!
     expect(options.typescript.tsConfig.compilerOptions!.ignoreTest).toEqual('#workspace')
+    expect(options.app.head.title).toEqual('#workspace')
   })
 
   it('resolve workspace components', async () => {
